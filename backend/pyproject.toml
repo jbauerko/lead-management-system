@@ -10,4 +10,6 @@ dependencies = [
   "pydantic-settings>=2.6,<3",
   "alembic>=1.14,<2",
   "itsdangerous>=2.2,<3",
+  "email-validator>=2,<3",
+  "python-multipart>=0.0.20,<1",
 ]

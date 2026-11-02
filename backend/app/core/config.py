@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     auth_secret: str = "local-demo-only-change-before-deployment"
     demo_password: str = "demo-password"
     pdf_storage_path: str = "./data/pdfs"
+    pdf_max_bytes: int = 10485760
 
 
 @lru_cache
