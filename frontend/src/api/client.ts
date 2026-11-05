@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role: Role;
   firm_id: string | null;
+  firm_name?: string | null;
 }
 export interface LoginRequest {
   email: string;

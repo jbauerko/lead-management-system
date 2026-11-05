@@ -1,3 +1,5 @@
+import { AdminOverview } from './pages/AdminOverview';
+import { ActivityLog } from './pages/ActivityLog';
 import type { Role } from './api/client';
 import { AdminDetail } from './pages/AdminDetail';
 import { FirmList } from './pages/FirmList';
@@ -77,7 +79,9 @@ export function App() {
         </Route>
         <Route element={<Guard roles={['admin']} />}>
           <Route path="/admin" element={<PortalLayout mode="admin" />}>
-            <Route index element={<Navigate to="leads" replace />} />
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<AdminOverview />} />
+            <Route path="activity" element={<ActivityLog />} />
             <Route path="leads" element={<FirmList kind="leads" admin />} />
             <Route path="leads/:leadId" element={<AdminDetail kind="leads" />} />
             <Route path="cases" element={<FirmList kind="cases" admin />} />

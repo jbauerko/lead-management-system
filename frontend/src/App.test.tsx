@@ -58,8 +58,10 @@ describe('portal authentication and navigation', () => {
     const calls = fetchMock.mock.calls.filter(([url]) => url.endsWith('/me'));
     expect(calls.length).toBeGreaterThan(0);
     expect(new Headers(calls[0][1].headers).get('Authorization')).toBe('Bearer demo-token');
-    await userEvent.click(screen.getByRole('link', { name: 'New lead' }));
-    expect(screen.getByRole('heading', { name: 'Submit a new lead' })).toBeTruthy();
+    await userEvent.click(screen.getByRole('link', { name: 'Leads' }));
+    await userEvent.click(await screen.findByRole('link', { name: 'Submit a lead' }));
+    expect(screen.getByRole('heading', { name: 'Submit a lead' })).toBeTruthy();
+    await userEvent.click(screen.getByLabelText('Account: Pat Plaintiff'));
     await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
     expect(await screen.findByRole('heading', { name: 'Welcome back' })).toBeTruthy();
     expect(sessionStorage.getItem('lead-portal-token')).toBeNull();
@@ -130,9 +132,25 @@ describe('portal authentication and navigation', () => {
         ),
     );
     mount('/plaintiff/leads');
-    await waitFor(() =>
-      expect(screen.getByRole('heading', { name: 'Firm inbox & cases' })).toBeTruthy(),
-    );
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Inbox' })).toBeTruthy());
     expect(screen.queryByRole('heading', { name: 'My leads & cases' })).toBeNull();
   });
+});
+
+it('opens account actions from the username and dismisses them with Escape or an outside click', async () => {
+  sessionStorage.setItem('lead-portal-token', 'saved');
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url: string) => Promise.resolve(mockResponse(url))),
+  );
+  mount('/plaintiff/leads');
+  const account = await screen.findByLabelText('Account: Pat Plaintiff');
+  expect((account.closest('details') as HTMLDetailsElement).open).toBe(false);
+  await userEvent.click(account);
+  expect((account.closest('details') as HTMLDetailsElement).open).toBe(true);
+  await userEvent.keyboard('{Escape}');
+  expect((account.closest('details') as HTMLDetailsElement).open).toBe(false);
+  await userEvent.click(account);
+  await userEvent.click(screen.getByRole('heading', { name: 'Leads' }));
+  expect((account.closest('details') as HTMLDetailsElement).open).toBe(false);
 });

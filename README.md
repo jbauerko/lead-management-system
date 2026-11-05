@@ -1,35 +1,53 @@
 # Lead management system
 
 Initial React/TypeScript + FastAPI scaffold. Demo auth, lead/case workflows, private notes, reassignment, and PDF endpoints
-are implemented. Frontend workflow screens remain unimplemented. Domain tables and the initial migration are included.
+are implemented. Plaintiff, firm, and admin workflow screens are implemented. Domain tables and the initial migration are included.
 
 ## Run locally
 
-Prerequisites: Docker Compose, Python 3.12+ with uv, and Node.js 22 LTS with npm.
+Prerequisites: GNU Make, Docker Compose v2, Python 3.12+ with uv, and Node.js
+22 LTS with npm on your PATH. Commands work on Linux/macOS/WSL; on Windows use WSL.
+If you use nvm, run `nvm use 22` first.
 
 From the repository root:
 
 ```sh
-docker compose up -d --wait
+make setup  # Install locked dependencies, start Postgres, migrate, seed demo users
+make dev    # Run API + UI together
 ```
 
-Backend (separate terminal):
+Ctrl-C stops both development servers and their reload workers. Postgres stays
+running; `make db-down` stops it while preserving data. `make dev` reapplies
+migrations and inserts missing seed records without overwriting existing demo data.
+It expects dependencies installed by `make setup` or `make install`. Both servers
+use fixed ports, and startup fails if a port is occupied. Stop your existing dev
+servers before running `make dev`.
 
-```sh
-cd backend
-cp .env.example .env
-uv sync
-uv run alembic upgrade head
-uv run uvicorn app.main:app --reload
-```
+For separate terminals, run `make db-up`, `make migrate`, `make seed`, then
+`make backend` and `make frontend` in their respective terminals.
 
-Frontend (separate terminal):
+Run `make help` for the full list. Common commands:
 
-```sh
-cd frontend
-npm install
-npm run dev
-```
+| Command | Purpose |
+| --- | --- |
+| `make check` | Backend/frontend tests plus frontend type-check/build |
+| `make test-backend` | Start local Postgres and run isolated-schema tests |
+| `make test-frontend` | Run frontend tests |
+| `make build` | Type-check and build the frontend |
+| `make migrate` | Apply migrations to the configured database |
+| `make migration message="add field"` | Generate a migration for review |
+| `make migration-check` | Check the migrated database against models |
+| `make seed` | Insert missing demo identities and routing rules |
+| `make db-logs` | Follow database logs |
+
+`make env` creates `backend/.env` only when missing. Edit that file for API settings;
+it is never overwritten. Tests use `TEST_DATABASE_URL`, independently of the app's
+`DATABASE_URL`, and create/drop unique schemas rather than changing app tables.
+Override it with `make test-backend TEST_DATABASE_URL=postgresql+psycopg://…`.
+That target starts the local Compose database even when testing another host.
+Use `cd backend && TEST_DATABASE_URL=… uv run pytest -q` to skip Compose in CI.
+`make check` does not require migrations on the app database because tests migrate
+their own schemas. Run `make migrate` before `make migration-check` locally.
 
 Open http://localhost:5173. Vite proxies `/api` to FastAPI.
 API documentation: http://localhost:8000/docs.
@@ -88,7 +106,7 @@ Region is uppercased and category lowercased. Inactive firms are not routed to.
 `GET /api/leads?limit=50&offset=0` and `GET /api/leads/{id}` enforce plaintiff
 ownership, staff firm assignment, or admin access. Submission and initial audit
 history are committed atomically. Swagger at `/docs` supports trying these endpoints.
-Frontend workflow screens do not exist yet.
+Plaintiff, firm, and admin workflow screens are implemented.
 
 ## Backend verification
 
@@ -133,7 +151,7 @@ from the lead. Progress updates and notes are described below.
   `status`, combined with the existing access scope and pagination. Substring
   search is a simple baseline and may need PostgreSQL trigram indexes at scale.
 
-Frontend workflow screens remain unimplemented.
+Plaintiff, firm, and admin workflow screens are implemented.
 
 ## Service composition
 
@@ -173,3 +191,102 @@ no malware scanner. Multipart uploads are spooled by the web framework before th
 service checks size; a deployed ingress should also bound total request size.
 No PDF delete endpoint is provided. Synthetic PDF bytes in tests exercise storage
 and access, not rendering. Real PDFs can be uploaded through Swagger `/docs`.
+
+## Frontend foundation
+
+The client portal now has a dark responsive shell, login/logout, session restoration,
+role guards, and routes for `/plaintiff/leads`, `/plaintiff/leads/new`,
+`/plaintiff/leads/:leadId`, `/plaintiff/cases`, and `/plaintiff/cases/:caseId`.
+Plaintiff screens now load leads and cases, submit inquiries, show progress, and
+exchange PDFs.
+Staff logins open `/firm/leads`; admins open `/admin/leads`.
+
+The demo bearer token is kept in sessionStorage for refreshes within the current tab;
+logout removes it locally (server-side revocation is not implemented). The backend
+validates identity and access independently of frontend guards. Expired tokens are
+cleared during session restoration; temporary connection failures offer a retry.
+The frontend uses the existing Vite `/api` proxy. A future production static host
+must serve index.html for frontend routes and proxy `/api` to FastAPI.
+
+From `frontend/`, run `npm ci`, `npm test`, and `npm run build` to verify the foundation.
+
+## Plaintiff workflow
+
+Sign in at `/login` using `plaintiff@example.com` / `demo-password` after seeding.
+Use **New lead** to submit an inquiry, then follow it under **Leads**. Region and
+category inputs offer demo suggestions while allowing unmatched values for admin
+review. Leads show the assigned firm and link to a case after staff acceptance.
+**Cases** shows accepted work and its latest progress. Detail pages support PDF
+upload, browser preview, and download with authenticated requests. Use Refresh to
+see staff/admin changes; live push updates are not implemented.
+
+Lists and documents are paginated. No inquiry title or sequential reference number
+is invented: row headings preview the submitted description. Private notes are
+never requested or displayed in the plaintiff UI. Requests that return 401 send the
+user back to sign-in. Firm staff can accept leads and update progress through the
+firm portal. Admins use the admin portal for assignment and history inspection.
+
+Lead responses include a minimal firm summary and nullable case_id. Case responses
+include the associated lead; these read relationships do not change the schema.
+
+## Firm workflow
+
+Sign in with `attorney@example.com` or `paralegal@example.com` and `demo-password`
+to open the North Legal portal. The `attorney2` and `paralegal2` accounts belong to
+South Legal. Both staff roles have the same workflow permissions.
+
+- `/firm/leads`: assigned-firm inbox with search, status, region, and category
+  filters. Filters and pagination are stored in the URL. Region/category matching
+  uses normalized exact values; search checks name, email, and description.
+- `/firm/leads/{id}`: inspect intake and PDFs, then confirm acceptance or decline.
+  Acceptance opens the created case. Decline leaves resolution to admins.
+- `/firm/cases`: paginated, searchable case list with status filtering.
+- `/firm/cases/{id}`: save plaintiff-visible status/progress, add and page through
+  firm-private notes, and exchange PDFs using the shared document controls.
+
+Refresh to see updates by other users. A reassigned record returns an inaccessible
+state on refresh; later save requests are also checked by the backend. The UI does
+not automatically poll for assignment changes. Private notes never appear in the
+plaintiff UI and remain owned by the firm that wrote them.
+
+## Admin workflow
+
+Sign in with `admin@example.com` / `demo-password` to open `/admin/leads`.
+Search leads and cases across firms, use status/region/category filters on leads,
+and use the unmatched/declined shortcuts to find inquiries needing assignment.
+Detail pages show intake, PDFs, and case progress where present.
+
+Choose an active firm, review the transfer, and confirm. Assigning an unmatched or
+declined lead makes it ready for firm review. Assigning a case moves its lead with
+it; existing case progress and documents remain. The firm picker loads all pages
+of active firms rather than assuming the first page contains every choice.
+
+Admins can inspect private notes from every authoring firm, with firm/author labels,
+but do not receive the staff note-writing form or progress editor. Assignment and
+status history shows actor name/email, timestamp, and before/after values. Assignment
+changes retain firm UUIDs as the recorded values so firm renames do not rewrite history.
+
+Routes: `/admin/leads`, `/admin/leads/{id}`, `/admin/cases`, `/admin/cases/{id}`.
+Refresh to see other users' changes; there is no background polling. Admin screens
+use the existing service authorization rules and do not bypass backend checks.
+
+## Mock-aligned UI
+
+All portals use the supplied UI mocks: fixed forest sidebar, cream workspace,
+compact tables, status badges, rounded cards, and split detail views. On narrow
+screens navigation moves above the workspace and tables scroll within their card.
+
+The admin landing page is `/admin/overview`, which combines cases and leads without
+duplicating accepted inquiries. Its firm and attention filters are applied before
+pagination. `/admin/activity` shows the cross-system activity log. Reassignment may
+include an optional reason, stored with that assignment's audit event.
+
+Case progress timelines use `/api/cases/{id}/progress`, exposing only shared progress
+and status updates from saved audit events. Private notes and actor identities are
+excluded from this plaintiff-readable endpoint. `/api/admin/work` and
+`/api/admin/activity` require an admin account. These changes need no schema migration.
+
+The mock's people, firms, and sample documents are visual examples; the UI renders
+actual demo data. Private notes remain case records created after acceptance; an
+unaccepted lead has no case-note history to display. Regions/categories still accept
+custom input so unmatched inquiries can be demonstrated with the existing routing.

@@ -12,7 +12,7 @@ export function homeFor(role: Role): string {
   if (isStaff(role)) {
     return '/firm/leads';
   }
-  return '/admin/leads';
+  return '/admin/overview';
 }
 
 /** Only restore bookmarks within this user's portal. */
