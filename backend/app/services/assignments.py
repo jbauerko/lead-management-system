@@ -45,7 +45,7 @@ class AssignmentService:
         return lead
 
     @transactional
-    def reassign(self, user: User, lead_id: UUID, firm_id: UUID) -> Lead:
+    def reassign(self, user: User, lead_id: UUID, firm_id: UUID, reason: str = "") -> Lead:
         if user.role != 'admin':
             raise PermissionError('Only admins may reassign work')
         lead = self.lock(lead_id)
@@ -63,6 +63,8 @@ class AssignmentService:
         # Private notes still belong to the firm that wrote them.
         # Only add history if the assignment or status actually changed.
         if changes:
+            if reason.strip():
+                changes["reason"] = {"from": None, "to": reason.strip()}
             self.audit.record(lead_id=lead.id, case_id=case.id if case else None,
                                    actor_id=user.id, action='assignment_changed', changes=changes)
         self.session.flush()

@@ -49,5 +49,7 @@ def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(bear
 
 
 @router.get('/me')
-def me(user: User = Depends(current_user)):
-    return {'id': user.id, 'name': user.name, 'email': user.email, 'role': user.role, 'firm_id': user.firm_id}
+def me(user: User = Depends(current_user), session: Session = Depends(get_session)):
+    from app.db.models import Firm
+    firm = session.get(Firm, user.firm_id) if user.firm_id else None
+    return {'id': user.id, 'name': user.name, 'email': user.email, 'role': user.role, 'firm_id': user.firm_id, 'firm_name': firm.name if firm else None}

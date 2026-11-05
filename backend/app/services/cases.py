@@ -97,11 +97,23 @@ class CaseService:
         return case
 
     @transactional
-    def reassign(self, user: User, case_id: UUID, firm_id: UUID) -> Case:
+    def reassign(self, user: User, case_id: UUID, firm_id: UUID, reason: str = "") -> Case:
         if user.role != 'admin':
             raise PermissionError('Only admins may reassign work')
         case = self.get(user, case_id)
         # Update the lead assignment and let the case and files follow it.
         # Save both service calls together, rather than committing halfway through.
-        self.assignments.reassign(user, case.lead_id, firm_id)
+        self.assignments.reassign(user, case.lead_id, firm_id, reason)
         return case
+
+    def progress_history(self, user: User, case_id: UUID, limit: int, offset: int):
+        """Expose shared updates only; actor identities and private changes stay out."""
+        self.get(user, case_id)
+        from app.db.models import AuditEvent
+        events = self.session.scalars(select(AuditEvent).where(
+            AuditEvent.case_id == case_id, AuditEvent.action.in_(['lead_accepted', 'case_updated'])
+        ).order_by(AuditEvent.created_at.desc(), AuditEvent.id.desc()).limit(limit).offset(offset)).all()
+        return [{'id': event.id,
+                 'progress': event.changes.get('progress', {}).get('to') or ('Case opened' if event.action == 'lead_accepted' else 'Case status updated'),
+                 'status': event.changes.get('status', {}).get('to'), 'created_at': event.created_at}
+                for event in events]

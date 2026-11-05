@@ -50,6 +50,7 @@ class NoteResponse(NoteCreate):
 class AssignmentUpdate(BaseModel):
     model_config = ConfigDict(extra='forbid')
     firm_id: UUID
+    reason: str = Field(default="", max_length=2000)
 
 
 class AuditResponse(BaseModel):

@@ -45,4 +45,12 @@ def notes(case_id: UUID, limit: int = Query(50, ge=1, le=100), offset: int = Que
 
 @router.patch('/{case_id}/assignment', response_model=CaseResponse)
 def assignment(case_id: UUID, data: AssignmentUpdate, service: CaseService = Depends(get_case_service), user: User = Depends(current_user)):
-    return service.reassign(user, case_id, data.firm_id)
+    return service.reassign(user, case_id, data.firm_id, data.reason)
+
+
+from app.schemas.admin import ProgressResponse
+
+@router.get('/{case_id}/progress', response_model=list[ProgressResponse])
+def progress(case_id: UUID, limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0),
+             service: CaseService = Depends(get_case_service), user: User = Depends(current_user)):
+    return service.progress_history(user, case_id, limit, offset)

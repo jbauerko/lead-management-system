@@ -43,3 +43,6 @@ app.include_router(firm_router, prefix='/api')
 def document_error(request: Request, error: Exception):
     return JSONResponse(status_code=413 if isinstance(error, DocumentTooLarge) else 422,
                         content={'detail': str(error)})
+
+from app.api.admin import router as admin_router
+app.include_router(admin_router, prefix="/api")

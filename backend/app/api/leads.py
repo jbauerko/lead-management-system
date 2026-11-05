@@ -42,7 +42,7 @@ def decline(lead_id: UUID, service: LeadService = Depends(get_lead_service), use
 
 @router.patch('/{lead_id}/assignment', response_model=LeadResponse)
 def assignment(lead_id: UUID, data: AssignmentUpdate, service: LeadService = Depends(get_lead_service), user: User = Depends(current_user)):
-    return service.reassign(user, lead_id, data.firm_id)
+    return service.reassign(user, lead_id, data.firm_id, data.reason)
 
 
 @router.get('/{lead_id}/history', response_model=list[AuditResponse])

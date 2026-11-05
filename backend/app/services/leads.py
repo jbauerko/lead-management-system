@@ -119,8 +119,8 @@ class LeadService:
             raise NotFound('Lead not found')
         return lead
 
-    def reassign(self, user: User, lead_id: UUID, firm_id: UUID) -> Lead:
-        return self.assignments.reassign(user, lead_id, firm_id)
+    def reassign(self, user: User, lead_id: UUID, firm_id: UUID, reason: str = "") -> Lead:
+        return self.assignments.reassign(user, lead_id, firm_id, reason)
 
     def history(self, user: User, lead_id: UUID, limit: int, offset: int) -> list[AuditEvent]:
         return self.audit.history(user, lead_id, limit, offset)
