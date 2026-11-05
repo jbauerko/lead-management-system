@@ -3,8 +3,8 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { AuthProvider } from '../auth/AuthProvider';
-import { App } from '../App';
+import { AuthProvider } from '../../src/auth/AuthProvider';
+import { App } from '../../src/App';
 const admin = {
   id: 'a1',
   name: 'Sam Admin',

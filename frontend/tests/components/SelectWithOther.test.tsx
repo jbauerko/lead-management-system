@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { afterEach, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SelectWithOther } from './SelectWithOther';
+import { SelectWithOther } from '../../src/components/SelectWithOther';
 afterEach(cleanup);
 function Example() {
   const [value, setValue] = useState('');

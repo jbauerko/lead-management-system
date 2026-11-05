@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { AuthProvider } from './auth/AuthProvider';
-import { App } from './App';
+import { AuthProvider } from '../src/auth/AuthProvider';
+import { App } from '../src/App';
 
 const plaintiff = {
   id: 'p1',

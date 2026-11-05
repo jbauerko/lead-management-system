@@ -8,8 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "format": "prettier --write src vite.config.ts tsconfig.json index.html package.json .prettierrc.json",
-    "format:check": "prettier --check src vite.config.ts tsconfig.json index.html package.json .prettierrc.json"
+    "format": "prettier --write src tests vite.config.ts tsconfig.json index.html package.json .prettierrc.json",
+    "format:check": "prettier --check src tests vite.config.ts tsconfig.json index.html package.json .prettierrc.json"
   },
   "dependencies": {
     "react": "^19.0.0",

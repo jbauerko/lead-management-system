@@ -4,9 +4,9 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { App } from '../App';
-import { AuthProvider } from '../auth/AuthProvider';
-import type { Lead, Case, PrivateNote } from '../api/work';
+import { App } from '../../src/App';
+import { AuthProvider } from '../../src/auth/AuthProvider';
+import type { Lead, Case, PrivateNote } from '../../src/api/work';
 const staff = {
   id: 'staff',
   name: 'Taylor Attorney',

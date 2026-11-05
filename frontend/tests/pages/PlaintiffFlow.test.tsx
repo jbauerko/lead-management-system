@@ -4,9 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { App } from '../App';
-import { AuthProvider } from '../auth/AuthProvider';
-import { type Lead, type Document } from '../api/work';
+import { App } from '../../src/App';
+import { AuthProvider } from '../../src/auth/AuthProvider';
+import { type Lead, type Document } from '../../src/api/work';
 
 const user = {
   id: 'p1',

@@ -293,3 +293,6 @@ The mock's people, firms, and sample documents are visual examples; the UI rende
 actual demo data. Private notes remain case records created after acceptance; an
 unaccepted lead has no case-note history to display. Regions/categories still accept
 custom input so unmatched inquiries can be demonstrated with the existing routing.
+
+Tests are grouped under `backend/tests/` and `frontend/tests/`. Frontend tests mirror
+the app/component/page structure and are included in TypeScript and formatting checks.
