@@ -59,12 +59,22 @@ def test_document_lifecycle_and_reassignment(client, session):
     assert client.post(path, headers=outsider, files={'file': ('x.pdf', PDF)}).status_code == 404
     assert client.post(f'/api/leads/{lead_id}/accept', headers=staff).status_code == 200
     case_id = str(session.scalar(select(Case.id)))
+    accepted_lead = client.get(f'/api/leads/{lead_id}', headers=plaintiff).json()
+    assert accepted_lead['case_id'] == case_id
+    assert accepted_lead['firm']['name'] == 'North Legal'
+    case_response = client.get(f'/api/cases/{case_id}', headers=plaintiff).json()
+    assert case_response['lead']['id'] == lead_id
+    assert case_response['lead']['firm']['name'] == 'North Legal'
+    assert 'private_notes' not in case_response
     case_path = f'/api/cases/{case_id}/documents'
     assert client.get(case_path, headers=plaintiff).json()[0]['id'] == document['id']
     assert client.post(case_path, headers=staff, files={'file': ('firm.pdf', PDF)}).status_code == 201
     assert client.patch(f'/api/cases/{case_id}', headers=staff, json={'status': 'in_progress', 'progress': 'Review'}).status_code == 200
     assert client.post(f'/api/cases/{case_id}/notes', headers=staff, json={'body': 'Private'}).status_code == 201
     assert client.patch(f'/api/cases/{case_id}/assignment', headers=admin, json={'firm_id': str(demo_id('south'))}).status_code == 200
+    moved = client.get(f'/api/cases/{case_id}', headers=plaintiff).json()
+    assert moved['lead']['firm']['name'] == 'South Legal'
+    assert moved['lead']['case_id'] == case_id
     new_staff = auth(client, 'attorney2')
     assert client.get(download, headers=staff).status_code == 404
     assert client.get(case_path, headers=staff).status_code == 404
@@ -72,7 +82,12 @@ def test_document_lifecycle_and_reassignment(client, session):
     assert len(client.get(case_path, headers=new_staff).json()) == 2
     assert client.get(f'/api/cases/{case_id}/notes', headers=new_staff).json() == []
     assert client.get(f'/api/cases/{case_id}/notes', headers=plaintiff).status_code == 403
-    assert len(client.get(f'/api/cases/{case_id}/notes', headers=admin).json()) == 1
+    inspected_notes = client.get(f'/api/cases/{case_id}/notes', headers=admin).json()
+    assert len(inspected_notes) == 1
+    assert inspected_notes[0]['authoring_firm']['name'] == 'North Legal'
+    assert inspected_notes[0]['author']['email'] == 'attorney@example.com'
+    history = client.get(f'/api/leads/{lead_id}/history', headers=admin).json()
+    assert any(event['actor']['email'] == 'admin@example.com' and event['action'] == 'assignment_changed' for event in history)
     assert client.get(f'/api/leads/{lead_id}/history', headers=admin).status_code == 200
 
 

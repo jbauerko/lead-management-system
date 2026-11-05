@@ -39,3 +39,26 @@ def test_routing_and_isolation(session):
             assert len(session.scalars(select(AuditEvent)).all()) == 2
     finally:
         app.dependency_overrides.clear()
+
+
+def test_inbox_filters_preserve_firm_scope(session):
+    seed(session)
+    session.commit()
+    def override():
+        yield session
+    app.dependency_overrides[get_session] = override
+    try:
+        with TestClient(app) as client:
+            def auth(email):
+                token = client.post('/api/auth/login', json={'email': email, 'password': 'demo-password'}).json()['access_token']
+                return {'Authorization': 'Bearer ' + token}
+            plaintiff = auth('plaintiff@example.com')
+            client.post('/api/leads', headers=plaintiff, json={'name': 'Pat', 'email': 'pat@example.com', 'region': 'NY', 'category': 'personal_injury', 'description': 'Injury inquiry'})
+            staff = auth('attorney@example.com')
+            matching = client.get('/api/leads?region=ny&category=PERSONAL_INJURY&status=assigned&q=injury', headers=staff)
+            assert matching.status_code == 200 and len(matching.json()) == 1
+            assert client.get('/api/leads?region=CA', headers=staff).json() == []
+            assert client.get('/api/leads?category=employment', headers=staff).json() == []
+            assert client.get('/api/leads?region=NY', headers=auth('attorney2@example.com')).json() == []
+    finally:
+        app.dependency_overrides.clear()
