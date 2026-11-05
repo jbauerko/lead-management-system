@@ -1,3 +1,4 @@
+from app.schemas.leads import LeadResponse, FirmSummary
 from app.schemas.audit import AuditChanges
 from datetime import datetime
 from uuid import UUID
@@ -11,6 +12,7 @@ class CaseResponse(BaseModel):
     status: str
     progress: str
     created_at: datetime
+    lead: LeadResponse
 
 from typing import Literal
 from pydantic import Field
@@ -20,6 +22,13 @@ class CaseUpdate(BaseModel):
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
     status: Literal['open', 'in_progress', 'closed']
     progress: str = Field(max_length=20000)
+
+
+class ActorSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    name: str
+    email: str
 
 
 class NoteCreate(BaseModel):
@@ -33,6 +42,8 @@ class NoteResponse(NoteCreate):
     case_id: UUID
     author_id: UUID
     authoring_firm_id: UUID
+    author: ActorSummary
+    authoring_firm: FirmSummary
     created_at: datetime
 
 
@@ -45,6 +56,7 @@ class AuditResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
     actor_id: UUID
+    actor: ActorSummary
     lead_id: UUID
     case_id: UUID | None
     action: str

@@ -99,13 +99,17 @@ class LeadService:
     def decline(self, user: User, lead_id: UUID) -> Lead:
         return self.review(user, lead_id, accept=False)
 
-    def list(self, user: User, *, limit: int = 50, offset: int = 0, q: str | None = None, status: str | None = None) -> list[Lead]:
+    def list(self, user: User, *, limit: int = 50, offset: int = 0, q: str | None = None, status: str | None = None, region: str | None = None, category: str | None = None) -> list[Lead]:
         # Start with leads this user can see, then search and paginate within them.
         query = select(Lead).where(lead_access(user))
         if q:
             query = query.where(or_(Lead.name.icontains(q, autoescape=True), Lead.email.icontains(q, autoescape=True), Lead.description.icontains(q, autoescape=True)))
         if status:
             query = query.where(Lead.status == status)
+        if region:
+            query = query.where(Lead.region == region.strip().upper())
+        if category:
+            query = query.where(Lead.category == category.strip().lower())
         return list(self.session.scalars(query.order_by(Lead.created_at.desc(), Lead.id.desc()).limit(limit).offset(offset)).all())
 
     def get(self, user: User, lead_id: UUID) -> Lead:

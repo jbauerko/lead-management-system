@@ -39,7 +39,7 @@ class AssignmentService:
 
     def lock(self, lead_id: UUID) -> Lead:
         """Let one operation change this lead at a time, using its latest saved values."""
-        lead = self.session.scalar(select(Lead).where(Lead.id == lead_id).with_for_update().execution_options(populate_existing=True))
+        lead = self.session.scalar(select(Lead).where(Lead.id == lead_id).with_for_update(of=Lead).execution_options(populate_existing=True))
         if lead is None:
             raise NotFound('Lead not found')
         return lead

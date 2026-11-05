@@ -12,6 +12,12 @@ class LeadCreate(BaseModel):
     description: str = Field(min_length=1, max_length=20000)
 
 
+class FirmSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    name: str
+
+
 class LeadResponse(LeadCreate):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
@@ -19,3 +25,5 @@ class LeadResponse(LeadCreate):
     firm_id: UUID | None
     status: str
     created_at: datetime
+    firm: FirmSummary | None = None
+    case_id: UUID | None = None

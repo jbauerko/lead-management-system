@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import BigInteger, CheckConstraint, DateTime, column, ForeignKey, Index, JSON, String, Text, UniqueConstraint, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
 
@@ -60,6 +60,15 @@ class Lead(IdentityMixin, Base):
     status: Mapped[str] = mapped_column(String(20), default='pending')
 
 
+    # These read relationships expose summaries without copying assignment data.
+    firm: Mapped[Firm | None] = relationship(lazy='joined')
+    case_record: Mapped['Case | None'] = relationship(lazy='selectin', viewonly=True, uselist=False)
+
+    @property
+    def case_id(self) -> UUID | None:
+        return self.case_record.id if self.case_record else None
+
+
 class Case(IdentityMixin, Base):
     """Assignment and plaintiff are inherited from the lead: one source of truth."""
     __tablename__ = 'cases'
@@ -72,6 +81,9 @@ class Case(IdentityMixin, Base):
     progress: Mapped[str] = mapped_column(Text, default='')
 
 
+    lead: Mapped[Lead] = relationship(lazy='joined', viewonly=True)
+
+
 class PrivateNote(IdentityMixin, Base):
     __tablename__ = 'private_notes'
     __table_args__ = (Index('ix_notes_case_firm_created', 'case_id', 'authoring_firm_id', 'created_at', 'id'),)
@@ -79,6 +91,10 @@ class PrivateNote(IdentityMixin, Base):
     author_id: Mapped[UUID] = mapped_column(ForeignKey('users.id'), index=True)
     authoring_firm_id: Mapped[UUID] = mapped_column(ForeignKey('firms.id'), index=True)
     body: Mapped[str] = mapped_column(Text)
+
+
+    author: Mapped[User] = relationship(foreign_keys=[author_id], lazy='joined')
+    authoring_firm: Mapped[Firm] = relationship(lazy='joined')
 
 
 class Document(IdentityMixin, Base):
@@ -105,3 +121,5 @@ class AuditEvent(IdentityMixin, Base):
     case_id: Mapped[UUID | None] = mapped_column(ForeignKey('cases.id'), index=True)
     action: Mapped[str] = mapped_column(String(100))
     changes: Mapped[dict] = mapped_column(JSON)
+
+    actor: Mapped[User] = relationship(lazy="joined")

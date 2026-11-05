@@ -18,9 +18,9 @@ def create(data: LeadCreate, service: LeadService = Depends(get_lead_service), u
 
 
 @router.get('', response_model=list[LeadResponse])
-def listing(q: str | None = Query(None, max_length=200), status: str | None = None, limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0),
+def listing(region: str | None = Query(None, max_length=100), category: str | None = Query(None, max_length=100), q: str | None = Query(None, max_length=200), status: str | None = None, limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0),
             service: LeadService = Depends(get_lead_service), user: User = Depends(current_user)):
-    return service.list(user, limit=limit, offset=offset, q=q, status=status)
+    return service.list(user, limit=limit, offset=offset, q=q, status=status, region=region, category=category)
 
 
 @router.get('/{lead_id}', response_model=LeadResponse)
