@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://leads:leads@localhost:5432/leads"
     frontend_origin: str = "http://localhost:5173"
     auth_secret: str = "local-demo-only-change-before-deployment"
+    demo_debug_enabled: bool = False
     demo_password: str = "demo-password"
     pdf_storage_path: str = "./data/pdfs"
     pdf_max_bytes: int = 10485760

@@ -40,8 +40,12 @@ to South Legal. Unmatched leads wait for admin assignment.
 ## Commands
 
 ```sh
-make check   # Tests and frontend build
-make help    # All commands
+make dev-blank  # Delete local Postgres data; no migrations or seeds
+make check      # Tests and frontend build
+make help       # All commands
 ```
+
+`make dev-blank` resets only the Compose database. Table-backed endpoints need
+`make migrate` afterward; demo sign-in also needs `make seed`. Uploaded PDFs are kept.
 
 [Architecture, development notes, and limitations](docs/architecture.md)

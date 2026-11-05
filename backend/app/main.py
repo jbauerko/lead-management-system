@@ -46,3 +46,6 @@ def document_error(request: Request, error: Exception):
 
 from app.api.admin import router as admin_router
 app.include_router(admin_router, prefix="/api")
+
+from app.api.debug import router as debug_router
+app.include_router(debug_router, prefix="/api")

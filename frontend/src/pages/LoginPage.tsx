@@ -61,13 +61,6 @@ export function LoginPage() {
             {busy ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
-        <p className="demo-hint">
-          Demo plaintiff: plaintiff@example.com
-          <br />
-          Staff: attorney@example.com or paralegal@example.com
-          <br />
-          Password: demo-password
-        </p>
       </div>
     </main>
   );

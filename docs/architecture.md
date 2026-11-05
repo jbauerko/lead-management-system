@@ -158,3 +158,12 @@ history, upload cleanup, and concurrent acceptance. `make check` does not need
 migrations on the app database because backend tests migrate their own schemas.
 Run `make migrate` before `make migration-check` on the app database.
 
+
+## Local demo reference
+
+In the Vite development server, press **Ctrl+[** to toggle the account/routing
+reference; Escape closes it too. It reads current database values each time it
+opens. `DEMO_DEBUG_ENABLED=true` in `backend/.env` enables `/api/debug/demo` before
+login. The example environment enables it for local use; the backend default is
+false. Keep it disabled in a deployed environment because it includes demo login
+credentials. The panel is omitted from production frontend builds.

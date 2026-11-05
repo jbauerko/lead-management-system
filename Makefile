@@ -8,7 +8,7 @@ TEST_DATABASE_URL ?= postgresql+psycopg://leads:leads@localhost:5432/leads
 export TEST_DATABASE_URL
 export message
 
-.PHONY: help env install setup dev backend frontend db-up db-down db-logs migrate migration migration-check seed test test-backend test-frontend build check
+.PHONY: help env install setup dev dev-blank backend frontend db-up db-down db-logs migrate migration migration-check seed test test-backend test-frontend build check
 
 help: ## List available commands
 	@awk 'BEGIN {FS = ":.*## "; printf "Run make <target> from the repository root:\n\n"} /^[a-zA-Z_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -29,6 +29,11 @@ setup: env ## First-time setup: dependencies, Postgres, migration, demo users
 dev: env db-up ## Run API + frontend together; Ctrl-C stops both (Postgres stays up)
 	$(MAKE) migrate
 	$(MAKE) seed
+	$(PYTHON) scripts/dev.py
+
+dev-blank: env ## Delete local Postgres data and start servers without migrations or seeds
+	$(COMPOSE) down --volumes
+	$(COMPOSE) up -d --wait db
 	$(PYTHON) scripts/dev.py
 
 backend: env ## Run the API with reload on http://localhost:8000
