@@ -101,7 +101,10 @@ any deployment. These documented credentials and default secret are local demo o
 
 Use `/api/auth/me` to inspect identity. A plaintiff can `POST /api/leads` with
 `name`, `email`, `region`, `category`, and `description`. Routing recognizes
-`NY` / `personal_injury` and `CA` / `employment`; other pairs remain pending.
+`NY` / `personal_injury`, `CA` / `employment`, `TX` / `personal_injury`,
+`FL` / `housing`, `IL` / `employment`, `NJ` / `family_law`, `PA` / `consumer`,
+`MA` / `medical_malpractice`, `GA` / `workers_compensation`, and
+`WA` / `immigration`; other pairs remain pending.
 Region is uppercased and category lowercased. Inactive firms are not routed to.
 `GET /api/leads?limit=50&offset=0` and `GET /api/leads/{id}` enforce plaintiff
 ownership, staff firm assignment, or admin access. Submission and initial audit

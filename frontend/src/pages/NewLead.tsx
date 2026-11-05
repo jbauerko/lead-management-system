@@ -99,8 +99,16 @@ export function NewLead() {
             onChange={(region) => setValues((current) => ({ ...current, region }))}
             error={errors.region}
             options={[
-              { value: 'NY', label: 'New York' },
               { value: 'CA', label: 'California' },
+              { value: 'FL', label: 'Florida' },
+              { value: 'GA', label: 'Georgia' },
+              { value: 'IL', label: 'Illinois' },
+              { value: 'MA', label: 'Massachusetts' },
+              { value: 'NJ', label: 'New Jersey' },
+              { value: 'NY', label: 'New York' },
+              { value: 'PA', label: 'Pennsylvania' },
+              { value: 'TX', label: 'Texas' },
+              { value: 'WA', label: 'Washington' },
             ]}
           />
           <SelectWithOther
@@ -110,8 +118,14 @@ export function NewLead() {
             onChange={(category) => setValues((current) => ({ ...current, category }))}
             error={errors.category}
             options={[
-              { value: 'personal_injury', label: 'Personal injury' },
+              { value: 'consumer', label: 'Consumer' },
               { value: 'employment', label: 'Employment' },
+              { value: 'family_law', label: 'Family law' },
+              { value: 'housing', label: 'Housing' },
+              { value: 'immigration', label: 'Immigration' },
+              { value: 'medical_malpractice', label: 'Medical malpractice' },
+              { value: 'personal_injury', label: 'Personal injury' },
+              { value: 'workers_compensation', label: "Workers' compensation" },
             ]}
           />
         </div>

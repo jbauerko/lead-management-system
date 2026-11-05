@@ -31,7 +31,18 @@ def seed(session: Session) -> None:
             session.add(User(id=demo_id(email), name=name, email=email, role=role,
                              firm_id=demo_id(firm) if firm else None))
     session.flush()
-    for region, category, firm in [('NY', 'personal_injury', 'north'), ('CA', 'employment', 'south')]:
+    for region, category, firm in [
+        ('NY', 'personal_injury', 'north'),
+        ('CA', 'employment', 'south'),
+        ('TX', 'personal_injury', 'south'),
+        ('FL', 'housing', 'south'),
+        ('IL', 'employment', 'north'),
+        ('NJ', 'family_law', 'north'),
+        ('PA', 'consumer', 'south'),
+        ('MA', 'medical_malpractice', 'north'),
+        ('GA', 'workers_compensation', 'south'),
+        ('WA', 'immigration', 'north'),
+    ]:
         key = f'routing:{region}:{category}'
         if session.get(RoutingRule, demo_id(key)) is None:
             session.add(RoutingRule(id=demo_id(key), region=region, category=category, firm_id=demo_id(firm)))

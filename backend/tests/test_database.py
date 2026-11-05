@@ -13,7 +13,7 @@ def test_seed_is_repeatable_and_preserves_changes(session):
     assert firm.name == 'Edited name'
     assert session.scalar(select(func.count()).select_from(Firm)) == 2
     assert session.scalar(select(func.count()).select_from(User)) == 7
-    assert session.scalar(select(func.count()).select_from(RoutingRule)) == 2
+    assert session.scalar(select(func.count()).select_from(RoutingRule)) == 10
 
 
 @pytest.mark.parametrize('role,firm', [('attorney', None), ('paralegal', None), ('admin', 'north'), ('plaintiff', 'north'), ('invalid', None)])
