@@ -1,10 +1,9 @@
-from app.api.dependencies import get_lead_service, get_note_service
+from app.api.dependencies import get_lead_service
 from app.services.leads import LeadService
-from app.services.notes import NoteService
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from app.api.auth import current_user
-from app.db.models import Lead, User
+from app.db.models import User
 from app.schemas.leads import LeadCreate, LeadResponse
 from app.schemas.cases import AssignmentUpdate, AuditResponse
 

@@ -35,12 +35,6 @@ export interface Document {
 export type WorkKind = 'leads' | 'cases';
 // Fetch one extra row to decide whether to show Next without a separate count query.
 export const PAGE_SIZE = 20;
-export const leadLabels: Record<LeadStatus, string> = {
-  pending: 'Finding a firm',
-  assigned: 'Under review',
-  accepted: 'Accepted',
-  declined: 'Awaiting admin review',
-};
 export const caseLabels: Record<CaseStatus, string> = {
   open: 'Open',
   in_progress: 'In progress',

@@ -47,7 +47,7 @@ afterEach(() => {
 it('finds unmatched work, confirms assignment, and shows the actor and changes in history', async () => {
   let lead = { ...original };
   let assigned = false;
-  const mock = vi.fn((url: string, options?: RequestInit) => {
+  const mock = vi.fn((url: string) => {
     if (url.endsWith('/auth/me')) {
       return Promise.resolve(json(admin));
     }

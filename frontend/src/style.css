@@ -425,19 +425,6 @@ td:not(:last-child) {
 .filter-bar .button {
   padding-inline: 12px;
 }
-.quick-filters {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.quick-filters button {
-  cursor: pointer;
-  background: none;
-  border: 0;
-  padding: 0;
-  color: var(--muted);
-  text-decoration: underline;
-}
 .pagination {
   display: flex;
   justify-content: flex-end;
@@ -571,11 +558,6 @@ td:not(:last-child) {
 }
 .document-name:hover {
   text-decoration: underline;
-}
-.row-secondary {
-  display: block;
-  font-size: 11px;
-  margin-top: 4px;
 }
 .document-list .actions {
   gap: 4px;

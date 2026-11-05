@@ -1,4 +1,9 @@
-"""Non-destructive demo fixtures. Run with python -m app.db.seed after migrations."""
+"""Seeds the database with demo users, firms, and routing rules.
+
+Run with python -m app.db.seed after migrations.
+"""
+
+
 from uuid import NAMESPACE_URL, uuid5
 from sqlalchemy.orm import Session
 from app.db.models import Firm, User, RoutingRule
